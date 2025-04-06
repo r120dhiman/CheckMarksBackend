@@ -1,12 +1,12 @@
 const express = require('express');
 const multer = require('multer');
 const axios = require('axios');
-
 const FormData = require('form-data');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Configure multer for memory storage
 const upload = multer({ 
@@ -16,8 +16,11 @@ const upload = multer({
     }
 });
 
-// Enable CORS
-app.use(cors());
+// Configure CORS
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true
+}));
 
 // Health check endpoint
 app.get('/health-check', (req, res) => {
@@ -25,7 +28,7 @@ app.get('/health-check', (req, res) => {
 });
 
 // Configure API URL based on environment
-const API_URL =  "https://api-fmv4.onrender.com";
+const API_URL = process.env.API_URL || "https://api-fmv4.onrender.com";
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
@@ -110,17 +113,14 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         // Process responses
         const mcqData = mcqResponse.data;
         const saData = saResponse.data;
-        console.log( mcqData.score_summary.total_score+saData.score_summary.total_score );
+        console.log(mcqData.score_summary.total_score + saData.score_summary.total_score);
         return res.json({
             mcqResult: mcqData.score_summary,
-            // saResult: totalSAPoints,
-            total: mcqData.score_summary.total_score+saData.score_summary.total_score ,
+            total: mcqData.score_summary.total_score + saData.score_summary.total_score,
             details: {
                 mcq: mcqData.mcq_data,
-                // sa: saData.sa_data
             }
         });
-
     } catch (error) {
         console.error('Error details:', {
             message: error.message,
@@ -137,7 +137,16 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
 });
 
+// Add error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        message: "Something went wrong!", 
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
 // Start server
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running on port ${port}`);
 });
