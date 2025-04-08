@@ -29,7 +29,7 @@ app.get('/health-check', (req, res) => {
 });
 
 // Configure API URL based on environment
-const API_URL = "http://localhost:3000"; // Change this to your actual API URL
+const API_URL = "https://checkmarksbackend.onrender.com"; // Change this to your actual API URL
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
