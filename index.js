@@ -3,6 +3,7 @@ const multer = require('multer');
 const axios = require('axios');
 const FormData = require('form-data');
 const cors = require('cors');
+const extract = require('./routes/extract');
 require('dotenv').config();
 
 const app = express();
@@ -28,7 +29,7 @@ app.get('/health-check', (req, res) => {
 });
 
 // Configure API URL based on environment
-const API_URL = "https://api-fmv4.onrender.com";
+const API_URL = "http://localhost:3000"; // Change this to your actual API URL
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
@@ -184,6 +185,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         });
     }
 });
+
+app.use('/extract', extract.router);
 
 // Add error handling middleware
 app.use((err, req, res, next) => {
