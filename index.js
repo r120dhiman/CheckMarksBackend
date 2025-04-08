@@ -38,14 +38,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             return res.status(400).json({ message: "File and date are required" });
         }
 
-        // Validate file type
-        if (!req.file.originalname.toLowerCase().endsWith('.pdf')) {
-            return res.status(400).json({ message: "Only PDF files are allowed" });
+        // Enhanced file type validation
+        const fileExtension = req.file.originalname.split('.').pop() || '';
+        if (!fileExtension.toLowerCase().match(/^pdf$/)) {
+            return res.status(400).json({ 
+                message: "Only PDF files are allowed",
+                details: "File must have a .pdf extension (case insensitive)"
+            });
         }
 
-        // Get file information
+        // Normalize filename to lowercase .pdf extension
+        const fileName = req.file.originalname.slice(0, -fileExtension.length) + 'pdf';
         const fileBuffer = req.file.buffer;
-        const fileName = req.file.originalname;
 
         // Convert date format
         const inputDate = new Date(req.body.date);
