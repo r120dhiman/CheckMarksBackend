@@ -73,6 +73,12 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         });
         formData1.append('date', formattedDate);
 
+        const mcqContentLength = await new Promise((resolve, reject) => {
+            formData1.getLength((err, length) => {
+                if (err) reject(err);
+                else resolve(length);
+            });
+        });
         let mcqResponse;
         try {
             console.log('Making MCQ request...');
@@ -83,7 +89,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
                     ...axiosConfig,
                     headers: {
                         ...headers,
-                        ...formData1.getHeaders()
+                        ...formData1.getHeaders(),
+                        'Content-Length': mcqContentLength
                     }
                 }
             );
@@ -106,6 +113,12 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         });
         formData2.append('date', formattedDate);
 
+        const saContentLength = await new Promise((resolve, reject) => {
+            formData2.getLength((err, length) => {
+                if (err) reject(err);
+                else resolve(length);
+            });
+        });
         let saResponse;
         try {
             console.log('Making SA request...');
@@ -116,7 +129,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
                     ...axiosConfig,
                     headers: {
                         ...headers,
-                        ...formData2.getHeaders()
+                        ...formData2.getHeaders(),
+                        'Content-Length': saContentLength
                     }
                 }
             );
