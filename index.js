@@ -4,11 +4,24 @@ const axios = require('axios');
 const FormData = require('form-data');
 const cors = require('cors');
 const extract = require('./routes/extract');
+const UserRoute = require('./routes/User');
+const { connectDB } = require('./connections/connection');
+const PaymentRouter = require('./routes/Payment');
+const {auth} = require('./middleware/auth');
 require('dotenv').config();
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 3000;
-
+connectDB(process.env.MONGO_URI)
+    .then(() => {
+        console.log("DB connected");
+    })
+    .catch((error) => {
+        console.error("Database connection error:", error);
+        process.exit(1);
+    });
 // Configure multer for memory storage
 const upload = multer({ 
     storage: multer.memoryStorage(),
@@ -191,8 +204,9 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 app.use('/extract', extract.router);
+app.use('/user', UserRoute)
+app.use("/payment",auth, PaymentRouter)
 
-// Add error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ 

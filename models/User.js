@@ -23,26 +23,59 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    image:{
+    isEnrolled:{
+      type: Boolean,
+      default: false,
+    },
+    paymentStatus:{
+      type: Boolean,
+      default: false,
+    },
+    isAdmin:{
+      type: Boolean,
+      default: false,
+    },
+    payment:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Payment'
+    },
+    paymentId:{
       type:String,
-      default:"https://www.flaticon.com/free-icon/user-avatar_6596121"
-    }
+      default:"N/A"
+    },
+    marks:{
+      type: Number,
+      default: 0,
+    },
+    shift_Date:{
+      type: String,
+      default: "N/A",
+    },
+    phone:{
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true } 
 );
 
-userSchema.pre("save",function(next){
-    const user=this;
-    if(!user.isModified("password")){
+userSchema.pre("save", function(next) {
+    const user = this;
+    
+    // Skip hashing if password isn't modified or is empty
+    if (!user.isModified("password") || !user.password) {
         return next();
     }
-    const Salt=randomBytes(16).toString('hex');
-    const updatedpassword=createHmac('sha256',Salt).update(user.password).digest('hex');
-    user.password=updatedpassword;
-    user.salt=Salt;
+    
+    const Salt = randomBytes(16).toString('hex');
+    const hashedPassword = createHmac('sha256', Salt)
+        .update(user.password)
+        .digest('hex');
+        
+    user.password = hashedPassword;
+    user.salt = Salt;
     next();
-})
-
+});
 
 const User = mongoose.model("User", userSchema);
 
