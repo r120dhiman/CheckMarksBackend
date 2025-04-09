@@ -8,6 +8,7 @@ const UserRoute = require('./routes/User');
 const { connectDB } = require('./connections/connection');
 const PaymentRouter = require('./routes/Payment');
 const {auth} = require('./middleware/auth');
+const User = require('./models/User');
 require('dotenv').config();
 
 const app = express();
@@ -41,13 +42,24 @@ app.get('/health-check', (req, res) => {
     return res.status(200).json({ message: "Ok" });
 });
 
+app.get('/',async (req, res ) => {
+//   const count=await Landing.findOneAndUpdate()
+  return res.status(200).json({message:"OK"});
+}
+)
+
 // Configure API URL based on environment
+// const API_URL = "http://localhost:3000"; // Change this to your actual API URL
 const API_URL = "https://checkmarksbackend.onrender.com"; // Change this to your actual API URL
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
+        // Parse the formData string back to an object
+        const formData = JSON.parse(req.body.formData);
+        const {name, email, phone, city, jeeDate, jeeShift} = formData;
+        
         // Validate request
-        if (!req.file || !req.body.date) {
+        if (!req.file || !jeeDate) {
             return res.status(400).json({ message: "File and date are required" });
         }
 
@@ -59,14 +71,15 @@ app.post('/upload', upload.single('file'), async (req, res) => {
                 details: "File must have a .pdf extension (case insensitive)"
             });
         }
+        
 
         // Normalize filename to lowercase .pdf extension
         const fileName = req.file.originalname.slice(0, -fileExtension.length) + 'pdf';
         const fileBuffer = req.file.buffer;
 
         // Convert date format
-        const inputDate = new Date(req.body.date);
-        const formattedDate = `${inputDate.getDate().toString().padStart(2, '0')}_${(inputDate.getMonth() + 1).toString().padStart(2, '0')}_${inputDate.getFullYear().toString().slice(-2)}`;
+        const inputDate = new Date(jeeDate);
+        const formattedDate = `${inputDate.getDate().toString().padStart(2, '0')}_${(inputDate.getMonth() + 1).toString().padStart(2, '0')}_${inputDate.getFullYear().toString().slice(-2)}_${jeeShift}`;
 
         // Common headers for both requests
         const headers = {
@@ -169,8 +182,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         if (!mcqData?.score_summary || !saData?.score_summary) {
             throw new Error('Invalid response format from extraction service');
         }
-
-        console.log('Total Score:', mcqData.score_summary.total_score + saData.score_summary.total_score);
+        const grandtotal= mcqData.score_summary.total_score + saData.score_summary.total_score;
+        let userinfo;
+        userinfo=await User.findOne({email});
+        if(!userinfo){
+              userinfo=await User.create({name, email, phone, city, shift_Date:formattedDate,marks:grandtotal});
+        }
+        const user= await User.findOneAndUpdate(userinfo._id,{marks:grandtotal, city:city, shift_Date:formattedDate, phone:phone})
         return res.json({
             mcqResult: mcqData.score_summary,
             saResult: saData.score_summary,

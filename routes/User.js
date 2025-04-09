@@ -11,11 +11,12 @@ UserRoute.get('/',(req,res ) => {
 UserRoute.post('/signup', async(req,res ) => {
     let user;
   const {name, email, password}=req.body;
+  
    user=await User.findOne({email});
-  if(user){
-    return res.status(200).json({message:"User already exist please login"},);
+   if(user && passowrd){
+    return res.status(200).json({message:"User already exist. Please login"})
+   }
 
-  }
   user= await User.create({name ,email,password});
   return res.status(200).json({message:"User created successfully"},); 
 }

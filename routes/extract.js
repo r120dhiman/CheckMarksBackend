@@ -74,8 +74,8 @@ async function processSA(buffer, answerKey) {
 
 // Answer key mapping
 const ANSWER_KEY_DRIVE_MAP = {
-    "04_04_24": "1-Etixccitmyanw18TkFToNu602MxsWBa",
-    "09_04_24": "1At0bMKkliKON5f-kqUfVDJdjuRqZ_sKy",
+    "04_04_24_2": "1-Etixccitmyanw18TkFToNu602MxsWBa",
+    "09_04_24_2": "1At0bMKkliKON5f-kqUfVDJdjuRqZ_sKy",
 };
 
 async function getAnswerKeyFromDrive(fileId) {
