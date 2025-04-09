@@ -54,10 +54,34 @@ const API_URL = "https://checkmarksbackend.onrender.com"; // Change this to your
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
+        // Check if formData exists
+        if (!req.body.formData) {
+            return res.status(400).json({ 
+                message: "Missing form data"
+            });
+        }
+
         // Parse the formData string back to an object
-        const formData = JSON.parse(req.body.formData);
+        let formData;
+        try {
+            formData = JSON.parse(req.body.formData);
+        } catch (parseError) {
+            console.error('Form data parsing error:', parseError);
+            return res.status(400).json({ 
+                message: "Invalid form data format",
+                details: parseError.message 
+            });
+        }
+
         const {name, email, phone, city, jeeDate, jeeShift} = formData;
         
+        // Validate all required fields
+        if (!name || !email || !phone || !city || !jeeDate || !jeeShift) {
+            return res.status(400).json({ 
+                message: "All fields are required" 
+            });
+        }
+
         // Validate request
         if (!req.file || !jeeDate) {
             return res.status(400).json({ message: "File and date are required" });
