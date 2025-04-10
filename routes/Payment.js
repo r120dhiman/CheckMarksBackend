@@ -27,7 +27,7 @@ PaymentRouter.post("/newpayment", async (req, res ) => {
   })
   const updateduser=await User.findByIdAndUpdate(userId,{isEnrolled:true, paymentStatus:true, paymentId:paymentData._id},{new:true})
 
-  return res.status(200).json({message:"Payment scuccessful", paymentData,updateduser});
+  return res.status(200).json({message:"Payment scuccessful", paymentData});
 }
 )
 
