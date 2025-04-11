@@ -75,7 +75,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         }
 
         const {name, email, city, jeeDate, jeeShift} = formData;
-        
+        console.log(email);
         // Validate all required fields
         if (!name || !email|| !city || !jeeDate || !jeeShift) {
             return res.status(400).json({ 
