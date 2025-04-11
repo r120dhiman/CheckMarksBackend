@@ -86,10 +86,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         }
 
         // Validate request
-        if(!Date_Array.includes(jeeDate)){
-            return res.status(400).json({
-                message: "Invalid date exam date"
-            })};
+       
         if (!req.file || !jeeDate) {
             return res.status(400).json({ message: "File and date are required" });
         }
