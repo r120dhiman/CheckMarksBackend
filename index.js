@@ -49,6 +49,8 @@ app.get('/',async (req, res ) => {
 }
 )
 
+const Date_Array=["02_04_25_1","02_04_25_2","03_04_25_1","03_04_25_2","04_04_25_1","04_04_25_2","07_04_25_1","07_04_25_2","08_04_25_1","08_04_25_2"];
+
 // Configure API URL based on environment
 // const API_URL = "http://localhost:3000"; // Change this to your actual API URL
 const API_URL = "https://checkmarksbackend.onrender.com"; // Change this to your actual API URL
@@ -84,6 +86,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         }
 
         // Validate request
+        if(!Date_Array.includes(jeeDate)){
+            return res.status(400).json({
+                message: "Invalid date exam date"
+            })};
         if (!req.file || !jeeDate) {
             return res.status(400).json({ message: "File and date are required" });
         }
