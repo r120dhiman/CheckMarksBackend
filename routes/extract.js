@@ -72,18 +72,6 @@ async function processSA(buffer, answerKey) {
     return results;
   }
 
-// Answer key mapping
-const ANSWER_KEY_DRIVE_MAP = {
-    "04_04_24_2": "1-Etixccitmyanw18TkFToNu602MxsWBa",
-    "09_04_24_2": "1At0bMKkliKON5f-kqUfVDJdjuRqZ_sKy",
-};
-
-async function getAnswerKeyFromDrive(fileId) {
-    const url = `https://drive.google.com/uc?export=download&id=${fileId}`;
-    const response = await axios.get(url);
-    return response.data;
-}
-
 router.post('/mcq', upload.single('file'), async (req, res) => {
     try {
         const { file, body: { date } } = req;
@@ -97,11 +85,13 @@ router.post('/mcq', upload.single('file'), async (req, res) => {
         }
 
         // Get answer key
-        const fileId = ANSWER_KEY_DRIVE_MAP[date];
-        if (!fileId) {
-            throw new Error(`No answer key mapped for date: ${date}`);
+        const answerKeyPath = path.join(__dirname, '..', 'answerkey', `${date}.json`);
+        if (!fs.existsSync(answerKeyPath)) {
+            throw new Error(`Answer key file not found for date: ${answerKeyPath}`);
         }
-        const answerKey = await getAnswerKeyFromDrive(fileId);
+
+        const answerKey = JSON.parse(fs.readFileSync(answerKeyPath, 'utf8'));
+        // console.log(`Retrieved answer key with ${answerKey.length} items`);
 
         // Create answer key dictionary
         const answerKeyDict = {};

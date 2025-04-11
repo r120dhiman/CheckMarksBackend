@@ -9,6 +9,7 @@ const { connectDB } = require('./connections/connection');
 const PaymentRouter = require('./routes/Payment');
 const {auth} = require('./middleware/auth');
 const User = require('./models/User');
+const Marks = require('./models/Marks');
 require('dotenv').config();
 
 const app = express();
@@ -51,7 +52,7 @@ app.get('/',async (req, res ) => {
 // Configure API URL based on environment
 // const API_URL = "http://localhost:3000"; // Change this to your actual API URL
 const API_URL = "https://checkmarksbackend.onrender.com"; // Change this to your actual API URL
-
+// 
 app.post('/upload', upload.single('file'), async (req, res) => {
     try {
         // Check if formData exists
@@ -73,10 +74,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             });
         }
 
-        const {name, email, phone, city, jeeDate, jeeShift} = formData;
+        const {name, email, city, jeeDate, jeeShift} = formData;
         
         // Validate all required fields
-        if (!name || !email || !phone || !city || !jeeDate || !jeeShift) {
+        if (!name || !email|| !city || !jeeDate || !jeeShift) {
             return res.status(400).json({ 
                 message: "All fields are required" 
             });
@@ -208,11 +209,16 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         }
         const grandtotal= mcqData.score_summary.total_score + saData.score_summary.total_score;
         let userinfo;
-        userinfo=await User.findOne({email});
+        userinfo=await Marks.findOne({email:email});
+        const Loggedin=await User.findOne({email:email});
         if(!userinfo){
-              userinfo=await User.create({name, email, phone, city, shift_Date:formattedDate,marks:grandtotal});
+            if(Loggedin){
+                userinfo=await Marks.create({name, email, city, shift_Date:formattedDate,marks:grandtotal, user_id:Loggedin._id});
+            }
+              userinfo=await Marks.create({name, email, city, shift_Date:formattedDate,marks:grandtotal});
         }
-        const user= await User.findOneAndUpdate(userinfo._id,{marks:grandtotal, city:city, shift_Date:formattedDate, phone:phone})
+        userinfo.marks=grandtotal;
+        await userinfo.save();
         return res.json({
             mcqResult: mcqData.score_summary,
             saResult: saData.score_summary,

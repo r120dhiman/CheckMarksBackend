@@ -9,10 +9,12 @@ const isAdmin= (req,res,next)=>{
 }
 
 const createToken= (user)=>{
+    // console.log(user);
     const payload={
-        username:user.name,
+        name:user.name,
         email:user.email,
         isAdmin:user.isAdmin,
+        isEnrolled:user.isEnrolled,
     }
     return jwt.sign(payload,process.env.JWT_SECRET,{
         expiresIn:"1d"

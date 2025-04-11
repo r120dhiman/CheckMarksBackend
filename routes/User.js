@@ -13,7 +13,7 @@ UserRoute.post('/signup', async(req,res ) => {
   const {name, email, password}=req.body;
   
    user=await User.findOne({email});
-   if(user && passowrd){
+   if(user){
     return res.status(200).json({message:"User already exist. Please login"})
    }
 
