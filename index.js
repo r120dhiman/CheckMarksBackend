@@ -211,17 +211,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             throw new Error('Invalid response format from extraction service');
         }
         const grandtotal= mcqData.score_summary.total_score + saData.score_summary.total_score;
-        let userinfo;
-        userinfo=await Marks.findOne({email:email});
-        const Loggedin=await User.findOne({email:email});
-        if(!userinfo){
-            if(Loggedin){
-                userinfo=await Marks.create({name, email, city, shift_Date:formattedDate,marks:grandtotal, user_id:Loggedin._id});
-            }
-              userinfo=await Marks.create({name, email, city, shift_Date:formattedDate,marks:grandtotal});
-        }
-        userinfo.marks=grandtotal;
-        await userinfo.save();
+            const  userinfo=await Marks.create({name, email, city, shift_Date:formattedDate,marks:grandtotal});
         return res.json({
             mcqResult: mcqData.score_summary,
             saResult: saData.score_summary,
